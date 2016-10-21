@@ -28,9 +28,19 @@ function setHeaders(req, res, next) {
     if (contentPath.indexOf(ROOT_DIR) !== 0) {
       return res.send(400, 'Invalid path')
     }
-    // res.setHeader('Content-Length', data.length)
-    let stat = await fs.promise.stat(contentPath)
+    let stat
+    try {
+      stat = await fs.promise.stat(contentPath)
+    }
+    catch(e) {
+      return res.send(404, 'invalide path')
+    }
     req.stat = stat
+
+    // since we stream the file, lets set the content length
+    if (!stat.isDirectory()) {
+      res.setHeader('Content-Length', stat.size)
+    }
     next()
   })().catch(next)
 }
