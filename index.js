@@ -24,23 +24,23 @@ app.use(morgan('dev'))
 
 function setContentPath(req, res, next) {
   let contentPath = path.join(ROOT_DIR, req.url)
+  if (contentPath.indexOf(ROOT_DIR) !== 0) {
+    return res.send(400, 'Invalid path')
+  }
   req.contentPath = contentPath
-  next()
+  fs.promise.stat(contentPath)
+  .then(stat => req.stat = stat, () => req.stat = null)
+  .nodeify(next)
 }
 
 function setHeaders(req, res, next) {
   nodeify(async() => {
     let contentPath = req.contentPath
-    if (contentPath.indexOf(ROOT_DIR) !== 0) {
-      return res.send(400, 'Invalid path')
+    let stat = req.stat
+
+    if (!stat) {
+      return res.send(404, 'Invalid path')
     }
-    let stat
-    try {
-      stat = await fs.promise.stat(contentPath)
-    } catch (e) {
-      return res.send(404, 'invalide path')
-    }
-    req.stat = stat
 
     // since we stream the file, lets set the content length
     if (!stat.isDirectory()) {
@@ -60,7 +60,7 @@ app.get('*', setContentPath, setHeaders, (req, res, next) => {
       let files = await fs.promise.readdir(contentPath)
       return res.json(files)
     }
-    fs.createReadStream(contentPath).pipe(res)
+    return fs.createReadStream(contentPath).pipe(res)
   })().catch(next)
 })
 
@@ -74,9 +74,13 @@ app.delete('*', setContentPath, setHeaders, (req, res, next) => {
     } else {
       await fs.promise.unlink(req.contentPath)
     }
-    return next()
+    return res.end()
   })().catch(next)
 })
+
+app.post('*', setContentPath, setHeaders, (req, res, next) => {
+  // if (req.)
+});
 
 app.listen(PORT, () => {
   console.log(`Server is listening at port ${PORT}`)
