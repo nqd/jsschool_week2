@@ -78,8 +78,17 @@ app.delete('*', setContentPath, setHeaders, (req, res, next) => {
   })().catch(next)
 })
 
-app.post('*', setContentPath, setHeaders, (req, res, next) => {
-  // if (req.)
+app.post('*', setContentPath, (req, res, next) => {
+  let stat = req.stat
+  let contentPath = req.contentPath
+
+  if (stat) return res.send(405, 'Content existed')
+  let endWithSlash = contentPath.charAt(contentPath.length - 1) === path.sep
+  let hasExt = path.extname(contentPath) !== ''
+  let isDir = endWithSlash || !hasExt
+  let dirPath = isDir ? contentPath : path.dirname(contentPath)
+  console.log(isDir)
+  console.log(dirPath)
 });
 
 app.listen(PORT, () => {
