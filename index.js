@@ -91,9 +91,10 @@ app.post('*', setContentPath, (req, res, next) => {
   console.log(isDir)
   console.log(dirPath)
   nodeify(async() => {
-    await mkdirp.promise(dirPath)
+    console.log('mkdir')
+    // await mkdirp.promise(dirPath)
     if (!isDir) {
-      req.pipe(fs.createReadStream(contentPath))
+      req.pipe(fs.createWriteStream(contentPath))
     }
     res.end()
   })().catch(next)
