@@ -11,6 +11,7 @@ let path = require('path')
 let mime = require('mime-types')
 let rimraf = require('rimraf')
 let mkdirp = require('mkdirp-promise')
+let archiver = require('archiver')
 
 require('songbird')
 
@@ -66,6 +67,15 @@ app.get('*', setContentPath, setHeaders, (req, res, next) => {
     let contentPath = req.contentPath
 
     if (stat.isDirectory()) {
+      // if request for zip
+      if (req.headers['accept'] === 'application/x-gtar') {
+        let archive = archiver('zip')
+        archive.pipe(res);
+        archive.bulk([
+            { expand: true, cwd: contentPath, src: ['**'] }
+        ])
+        return archive.finalize()
+      }
       let files = await fs.promise.readdir(contentPath)
       return res.json(files)
     }
