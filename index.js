@@ -10,6 +10,7 @@ let nodeify = require('bluebird-nodeify')
 let path = require('path')
 let mime = require('mime-types')
 let rimraf = require('rimraf')
+let mkdirp = require('node-mkdirp')
 
 require('songbird')
 
@@ -89,6 +90,13 @@ app.post('*', setContentPath, (req, res, next) => {
   let dirPath = isDir ? contentPath : path.dirname(contentPath)
   console.log(isDir)
   console.log(dirPath)
+  nodeify(async() => {
+    await mkdirp.promise(dirPath)
+    if (!isDir) {
+      req.pipe(fs.createReadStream(contentPath))
+    }
+    res.end()
+  })().catch(next)
 });
 
 app.listen(PORT, () => {
