@@ -29,6 +29,14 @@ function setContentPath(req, res, next) {
     return res.send(400, 'Invalid path')
   }
   req.contentPath = contentPath
+
+  let endWithSlash = contentPath.charAt(contentPath.length - 1) === path.sep
+  let hasExt = path.extname(contentPath) !== ''
+  let isDir = endWithSlash || !hasExt
+  let dirPath = isDir ? contentPath : path.dirname(contentPath)
+  req.isDir = isDir
+  req.dirPath = dirPath
+
   fs.promise.stat(contentPath)
   .then(stat => req.stat = stat, () => req.stat = null)
   .nodeify(next)
@@ -82,19 +90,27 @@ app.delete('*', setContentPath, setHeaders, (req, res, next) => {
 app.post('*', setContentPath, (req, res, next) => {
   let stat = req.stat
   let contentPath = req.contentPath
+  let isDir = req.isDir
+  let dirPath = req.dirPath
 
   if (stat) return res.send(405, 'Content existed')
-  let endWithSlash = contentPath.charAt(contentPath.length - 1) === path.sep
-  let hasExt = path.extname(contentPath) !== ''
-  let isDir = endWithSlash || !hasExt
-  let dirPath = isDir ? contentPath : path.dirname(contentPath)
-  console.log(isDir)
-  console.log(dirPath)
   nodeify(async() => {
     await mkdirp.promise(dirPath)
-    if (!isDir) {
-      req.pipe(fs.createWriteStream(contentPath))
-    }
+    if (!isDir) req.pipe(fs.createWriteStream(contentPath))
+    res.end()
+  })().catch(next)
+});
+
+app.put('*', setContentPath, (req, res, next) => {
+  let stat = req.stat
+  let contentPath = req.contentPath
+  let isDir = req.isDir
+  let dirPath = req.dirPath
+
+  if (!stat) return res.send(404, 'Not found')
+  if (isDir) return res.send(405, 'Folder is uneditable')
+  nodeify(async() => {
+    req.pipe(fs.createWriteStream(contentPath))
     res.end()
   })().catch(next)
 });

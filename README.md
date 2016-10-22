@@ -14,9 +14,9 @@ Time spent: `<Number of hours spent>`
 - [x] Client can make GET requests to get file or directory contents
 - [ ] Client can download a directory as an archive
 - [x] Client can make HEAD request to get just the GET headers 
-- [ ] Client can make ~~PUT~~ POST requests to create new directories and files with content
-- [ ] Client can make ~~POST~~ PUT requests to update the contents of a file
-- [ ] Client can make DELETE requests to delete files and folders
+- [x] Client can make ~~PUT~~ POST requests to create new directories and files with content
+- [x] Client can make ~~POST~~ PUT requests to update the contents of a file
+- [x] Client can make DELETE requests to delete files and folders
 - [ ] Server will serve from `--dir` or cwd as root
 - [ ] Server will sync `HTTP` modifications over TCP to the Client
 - [ ] Server will sync watched file modifications (e.g., `fs.watch`) over TCP to the Client
