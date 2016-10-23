@@ -1,8 +1,4 @@
 let fs = require('fs')
-let express = require('express')
-// let PromiseRouter = require('express-promise-router')
-// let trycatch = require('trycatch')
-// let bodyParser = require('body-parser')
 let morgan = require('morgan')
 let nodeify = require('bluebird-nodeify')
 let path = require('path')
