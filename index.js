@@ -15,6 +15,7 @@ const NODE_ENV = process.env.NODE_ENV
 const PORT = process.env.PORT || 8000
 const ROOT_DIR = process.cwd()
 
+const rootDir = argv.dir || ROOT_DIR
 
 let app = express()
 // middleware
@@ -23,7 +24,7 @@ if (NODE_ENV === 'development') {
 }
 
 crud.init({
-  rootDir: (argv.dir || ROOT_DIR)
+  rootDir: rootDir
 });
 
 app.get('*', crud.setContentPath, crud.setHeaders, crud.read)
@@ -32,9 +33,13 @@ app.delete('*', crud.setContentPath, crud.setHeaders, crud.remove)
 app.post('*', crud.setContentPath, crud.create)
 app.put('*', crud.setContentPath, crud.update)
 
-// chokidar.watch('.', {ignored: /[\/\\]\./}).on('all', (event, path) => {
-//   console.log(event, path);
-// });
+chokidar.watch(rootDir, {ignored: /[\/\\]\./}).on('all', (event, path) => {
+  console.log({
+    event: event,
+    path: path,
+    time: new Date()
+  })
+});
 
 app.listen(PORT, () => {
   console.log(`Server is listening at port ${PORT}`)
