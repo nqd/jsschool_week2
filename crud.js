@@ -16,6 +16,49 @@ let crud = require('./crud')
 
 require('songbird')
 
+let options = {}
+
+let init = (ops) => {
+  options.rootDir = ops.rootDir
+}
+
+let setContentPath = (req, res, next) => {
+  let contentPath = path.join(options.rootDir, req.url)
+  if (contentPath.indexOf(options.rootDir) !== 0) {
+    return res.send(400, 'Invalid path')
+  }
+  req.contentPath = contentPath
+
+  let endWithSlash = contentPath.charAt(contentPath.length - 1) === path.sep
+  let hasExt = path.extname(contentPath) !== ''
+  let isDir = endWithSlash || !hasExt
+  let dirPath = isDir ? contentPath : path.dirname(contentPath)
+  req.isDir = isDir
+  req.dirPath = dirPath
+
+  fs.promise.stat(contentPath)
+  .then(stat => req.stat = stat, () => req.stat = null)
+  .nodeify(next)
+}
+
+let setHeaders = (req, res, next) => {
+  nodeify(async() => {
+    let contentPath = req.contentPath
+    let stat = req.stat
+
+    if (!stat) {
+      return res.send(404, 'Invalid path')
+    }
+
+    // since we stream the file, lets set the content length
+    if (!stat.isDirectory()) {
+      res.setHeader('Content-Length', stat.size)
+      res.setHeader('Content-Type', mime.lookup(contentPath))
+    }
+    next()
+  })().catch(next)
+}
+
 let read = (req, res, next) => {
   nodeify(async() => {
     let stat = req.stat
@@ -79,8 +122,11 @@ let update = (req, res, next) => {
 }
 
 module.exports = {
+  init: init,
   create: create,
   read: read,
   update: update,
-  remove: remove
+  remove: remove,
+  setHeaders: setHeaders,
+  setContentPath: setContentPath
 }

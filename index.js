@@ -22,7 +22,6 @@ const NODE_ENV = process.env.NODE_ENV
 const PORT = process.env.PORT || 8000
 const ROOT_DIR = process.cwd()
 
-let rootDir = argv.dir || ROOT_DIR
 
 let app = express()
 // middleware
@@ -30,52 +29,19 @@ if (NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
 
-function setContentPath(req, res, next) {
-  let contentPath = path.join(rootDir, req.url)
-  if (contentPath.indexOf(rootDir) !== 0) {
-    return res.send(400, 'Invalid path')
-  }
-  req.contentPath = contentPath
+crud.init({
+  rootDir: (argv.dir || ROOT_DIR)
+});
 
-  let endWithSlash = contentPath.charAt(contentPath.length - 1) === path.sep
-  let hasExt = path.extname(contentPath) !== ''
-  let isDir = endWithSlash || !hasExt
-  let dirPath = isDir ? contentPath : path.dirname(contentPath)
-  req.isDir = isDir
-  req.dirPath = dirPath
+app.get('*', crud.setContentPath, crud.setHeaders, crud.read)
 
-  fs.promise.stat(contentPath)
-  .then(stat => req.stat = stat, () => req.stat = null)
-  .nodeify(next)
-}
+app.head('*', crud.setContentPath, crud.setHeaders)
 
-function setHeaders(req, res, next) {
-  nodeify(async() => {
-    let contentPath = req.contentPath
-    let stat = req.stat
+app.delete('*', crud.setContentPath, crud.setHeaders, crud.remove)
 
-    if (!stat) {
-      return res.send(404, 'Invalid path')
-    }
+app.post('*', crud.setContentPath, crud.create)
 
-    // since we stream the file, lets set the content length
-    if (!stat.isDirectory()) {
-      res.setHeader('Content-Length', stat.size)
-      res.setHeader('Content-Type', mime.lookup(contentPath))
-    }
-    next()
-  })().catch(next)
-}
-
-app.get('*', setContentPath, setHeaders, crud.read)
-
-app.head('*', setContentPath, setHeaders)
-
-app.delete('*', setContentPath, setHeaders, crud.remove)
-
-app.post('*', setContentPath, crud.create)
-
-app.put('*', setContentPath, crud.update)
+app.put('*', crud.setContentPath, crud.update)
 
 app.listen(PORT, () => {
   console.log(`Server is listening at port ${PORT}`)
