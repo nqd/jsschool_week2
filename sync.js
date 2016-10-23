@@ -1,3 +1,4 @@
+let path = require('path')
 let chokidar = require('chokidar')
 let nssocket = require('nssocket')
 
@@ -23,10 +24,10 @@ const start = () => {
 
   // watch for file changes
   chokidar.watch(options.rootDir, { ignored: /[\/\\]\./ })
-  .on('all', (event, path) => {
+  .on('all', (event, contentPath) => {
     const infor = {
       event: event,
-      path: path,
+      path: path.relative(options.rootDir, contentPath),
       time: new Date()
     }
     console.log(infor)
