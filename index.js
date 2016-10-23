@@ -12,6 +12,7 @@ let mime = require('mime-types')
 let rimraf = require('rimraf')
 let mkdirp = require('mkdirp-promise')
 let archiver = require('archiver')
+let argv = require('yargs').argv
 
 require('songbird')
 
@@ -19,14 +20,17 @@ const NODE_ENV = process.env.NODE_ENV
 const PORT = process.env.PORT || 8000
 const ROOT_DIR = process.cwd()
 
-let app = express()
+let rootDir = argv.dir || ROOT_DIR
 
+let app = express()
 // middleware
-app.use(morgan('dev'))
+if (NODE_ENV === 'development') {
+  app.use(morgan('dev'))
+}
 
 function setContentPath(req, res, next) {
-  let contentPath = path.join(ROOT_DIR, req.url)
-  if (contentPath.indexOf(ROOT_DIR) !== 0) {
+  let contentPath = path.join(rootDir, req.url)
+  if (contentPath.indexOf(rootDir) !== 0) {
     return res.send(400, 'Invalid path')
   }
   req.contentPath = contentPath
@@ -128,4 +132,3 @@ app.put('*', setContentPath, (req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server is listening at port ${PORT}`)
 })
-
