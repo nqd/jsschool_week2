@@ -63,7 +63,7 @@ let read = (req, res, next) => {
     if (stat.isDirectory()) {
       // if request for zip
       if (req.headers['accept'] === 'application/x-gtar') {
-        let archive = archiver('zip')
+        let archive = archiver('tar')
         archive.pipe(res);
         archive.bulk([
             { expand: true, cwd: contentPath, src: ['**'] }

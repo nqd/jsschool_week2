@@ -3,7 +3,7 @@ let nssocket = require('nssocket')
 let url = require('url')
 let request = require('request')
 let argv = require('yargs').argv
-let unzip = require('unzip')
+var tar = require('tar')
 
 const ROOT_DIR = process.cwd()
 
@@ -32,4 +32,15 @@ const options = {
   }),
   headers: { Accept: 'application/x-gtar' }
 }
-request(options).pipe(unzip.Extract({path: 'clientDir'}))
+
+function onError(err) {
+  console.error('An error occurred:', err)
+}
+
+function onEnd() {
+  console.log('Extracted!')
+}
+let extractor = tar.Extract({path: __dirname + "/extract"})
+  .on('error', onError)
+  .on('end', onEnd);
+request(options).pipe(extractor)
