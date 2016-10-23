@@ -14,6 +14,8 @@ let mkdirp = require('mkdirp-promise')
 let archiver = require('archiver')
 let argv = require('yargs').argv
 
+let crud = require('./crud')
+
 require('songbird')
 
 const NODE_ENV = process.env.NODE_ENV
@@ -65,69 +67,15 @@ function setHeaders(req, res, next) {
   })().catch(next)
 }
 
-app.get('*', setContentPath, setHeaders, (req, res, next) => {
-  nodeify(async() => {
-    let stat = req.stat
-    let contentPath = req.contentPath
-
-    if (stat.isDirectory()) {
-      // if request for zip
-      if (req.headers['accept'] === 'application/x-gtar') {
-        let archive = archiver('zip')
-        archive.pipe(res);
-        archive.bulk([
-            { expand: true, cwd: contentPath, src: ['**'] }
-        ])
-        return archive.finalize()
-      }
-      let files = await fs.promise.readdir(contentPath)
-      return res.json(files)
-    }
-    return fs.createReadStream(contentPath).pipe(res)
-  })().catch(next)
-})
+app.get('*', setContentPath, setHeaders, crud.read)
 
 app.head('*', setContentPath, setHeaders)
 
-app.delete('*', setContentPath, setHeaders, (req, res, next) => {
-  nodeify(async() => {
-    let stat = req.stat
-    if (stat.isDirectory()) {
-      await rimraf.promise(req.contentPath)
-    } else {
-      await fs.promise.unlink(req.contentPath)
-    }
-    return res.end()
-  })().catch(next)
-})
+app.delete('*', setContentPath, setHeaders, crud.remove)
 
-app.post('*', setContentPath, (req, res, next) => {
-  let stat = req.stat
-  let contentPath = req.contentPath
-  let isDir = req.isDir
-  let dirPath = req.dirPath
+app.post('*', setContentPath, crud.create)
 
-  if (stat) return res.send(405, 'Content existed')
-  nodeify(async() => {
-    await mkdirp.promise(dirPath)
-    if (!isDir) req.pipe(fs.createWriteStream(contentPath))
-    res.end()
-  })().catch(next)
-});
-
-app.put('*', setContentPath, (req, res, next) => {
-  let stat = req.stat
-  let contentPath = req.contentPath
-  let isDir = req.isDir
-  let dirPath = req.dirPath
-
-  if (!stat) return res.send(404, 'Not found')
-  if (isDir) return res.send(405, 'Folder is uneditable')
-  nodeify(async() => {
-    req.pipe(fs.createWriteStream(contentPath))
-    res.end()
-  })().catch(next)
-});
+app.put('*', setContentPath, crud.update)
 
 app.listen(PORT, () => {
   console.log(`Server is listening at port ${PORT}`)
