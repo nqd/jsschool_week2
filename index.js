@@ -30,6 +30,8 @@ sync.init({
   rootDir: rootDir
 })
 
+sync.start()
+
 app.get('*', crud.setContentPath, crud.setHeaders, crud.read)
 app.head('*', crud.setContentPath, crud.setHeaders)
 app.delete('*', crud.setContentPath, crud.setHeaders, crud.remove)
