@@ -18,12 +18,12 @@ Time spent: `10`
 - [x] Client can make ~~POST~~ PUT requests to update the contents of a file
 - [x] Client can make DELETE requests to delete files and folders
 - [x] Server will serve from `--dir` or cwd as root
-- [ ] Server will sync `HTTP` modifications over TCP to the Client
-- [ ] Server will sync watched file modifications (e.g., `fs.watch`) over TCP to the Client
+- [ ] Note: will not implement since this requirement confict with following requirement. Server will sync `HTTP` modifications over TCP to the Client
+- [x] Server will sync watched file modifications (e.g., `fs.watch`) over TCP to the Client
 
 ### Optional
 
-- [ ] Client supports multiple connected clients
+- [x] Client supports multiple connected clients
 - [ ] Client does not need to make additional `GET` request on `"write"` update
 - [ ] Client and User will be redirected from HTTP to HTTPS
 - [ ] Client will sync back to Server over TCP

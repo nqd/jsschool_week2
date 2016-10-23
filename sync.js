@@ -21,7 +21,6 @@ const start = () => {
   })
   server.promise.listen(8001);
 
-
   // watch for file changes
   chokidar.watch(options.rootDir, { ignored: /[\/\\]\./ })
   .on('all', (event, path) => {

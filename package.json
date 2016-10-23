@@ -6,6 +6,7 @@
   "scripts": {
     "start": "nodemon  --exec 'babel-node -- ./' -- --dir storage",
     "once": "babel-node -- ./",
+    "client": "babel-node dropboxClient.js --dir clientStorage",
     "test": "mocha --compilers js:babel-register test/spec",
     "dev": "run-p start watch:test watch:lint",
     "clean": "rimraf dist",
