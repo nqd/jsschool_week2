@@ -9,7 +9,7 @@ Time spent: `12`
 ### Required
 
 - [x] Completed Requireds marked with `[x]`
-- [ ] Walkthrough Gif embedded in README
+- [x] Walkthrough Gif embedded in README
 - [x] README `Time spent:` includes the number of hours spent on the assignment
 - [x] Client can make GET requests to get file or directory contents
 - [x] Client can download a directory as an archive
@@ -35,8 +35,24 @@ Time spent: `12`
 
 ## Walkthrough
 
-`<Add your Walkthrough Gif here (by updating the image URL)>`
-![Video Walkthrough](...)
+### create and edit
+
+![](https://raw.githubusercontent.com/nqd/jsschool_week2/master/gif/create-edit.gif)
 
 
+### get
 
+![](https://raw.githubusercontent.com/nqd/jsschool_week2/master/gif/get.gif)
+
+
+### del
+
+![](https://raw.githubusercontent.com/nqd/jsschool_week2/master/gif/del.gif)
+
+### server event
+
+![](https://raw.githubusercontent.com/nqd/jsschool_week2/master/gif/serverEvent.gif)
+
+### dropbox client
+
+![](https://raw.githubusercontent.com/nqd/jsschool_week2/master/gif/client.gif)
