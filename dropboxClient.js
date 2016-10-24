@@ -1,9 +1,11 @@
+#!/usr/bin/env babel-node
 
 let nssocket = require('nssocket')
 let url = require('url')
 let request = require('request')
 let argv = require('yargs').argv
-var tar = require('tar')
+let tar = require('tar')
+let path = require('path')
 
 const ROOT_DIR = process.cwd()
 
@@ -40,7 +42,7 @@ function onError(err) {
 function onEnd() {
   console.log('Extracted!')
 }
-let extractor = tar.Extract({path: __dirname + "/extract"})
+let extractor = tar.Extract({ path: path.join(__dirname, rootDir) })
   .on('error', onError)
   .on('end', onEnd);
 request(options).pipe(extractor)
